@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <lms/imaging/warp.h>
+#include "lms/math/vertex.h"
 
 class Environment {
 public:
@@ -12,7 +13,7 @@ public:
 
     struct RoadLane {
         RoadLaneType type;
-        std::vector<lms::imaging::vertex2f> points;
+        std::vector<lms::math::vertex2f> points;
     };
     std::vector<RoadLane> lanes;
 };

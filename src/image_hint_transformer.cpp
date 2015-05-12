@@ -55,12 +55,12 @@ void ImageHintTransformer::convertLane(const lms::imaging::find::ImageHintBase *
 
 
     for(const lms::imaging::find::LinePoint &linePoint : line->imageObject.points()) {
-        lms::imaging::vertex2i in(linePoint.low_high.x, linePoint.low_high.y);
-        lms::imaging::vertex2f out;
-        bool success = lms::imaging::C2V(&in, &out);
+        //lms::math::vertex2i in(linePoint.low_high.x, linePoint.low_high.y);
+        lms::math::vertex2f out;
+        bool success = lms::imaging::C2V(&linePoint.low_high, &out);
 
         if(success) {
-            lane.points.push_back(lms::imaging::vertex2f(out[0], out[1]));
+            lane.points.push_back(lms::math::vertex2f(out[0], out[1]));
         }
     }
 }
