@@ -16,13 +16,13 @@ bool ImageHintTransformer::deinitialize() {
 }
 
 bool ImageHintTransformer::cycle() {
-    environment->lanes.empty();
+    environment->lanes.clear();
 
     //TODO Just for testing, that has to be changed so it can be defined via config
     Environment::RoadLane lane;
     const lms::imaging::find::ImageHintBase *hint = hintContainer->getByName("LEFT_LANE");
     if(hint != nullptr){
-    lane.type = Environment::RoadLaneType::LEFT;
+    lane.type(Environment::RoadLaneType::LEFT);
     convertLane(hint,lane);
     environment->lanes.push_back(lane);
     }else{
@@ -31,8 +31,8 @@ bool ImageHintTransformer::cycle() {
 
     hint = hintContainer->getByName("RIGHT_LANE");
     if(hint != nullptr){
-    lane.type = Environment::RoadLaneType::RIGHT;
-    lane.points.clear();
+    lane.type(Environment::RoadLaneType::RIGHT);
+    lane.points().clear();
     convertLane(hint,lane);
     environment->lanes.push_back(lane);
     }else{
@@ -41,8 +41,8 @@ bool ImageHintTransformer::cycle() {
 
     hint = hintContainer->getByName("MIDDLE_LANE");
     if(hint != nullptr){
-        lane.type = Environment::RoadLaneType::MIDDLE;
-        lane.points.clear();
+        lane.type(Environment::RoadLaneType::MIDDLE);
+        lane.points().clear();
         convertLane(hint,lane);
         environment->lanes.push_back(lane);
     }
@@ -60,7 +60,7 @@ void ImageHintTransformer::convertLane(const lms::imaging::find::ImageHintBase *
         bool success = lms::imaging::C2V(&linePoint.low_high, &out);
 
         if(success) {
-            lane.points.push_back(lms::math::vertex2f(out[0], out[1]));
+            lane.points().push_back(out);
         }
     }
 }

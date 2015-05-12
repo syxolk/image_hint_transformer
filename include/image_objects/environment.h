@@ -4,6 +4,7 @@
 #include <vector>
 #include <lms/imaging/warp.h>
 #include "lms/math/vertex.h"
+#include "lms/math/polyline.h"
 
 class Environment {
 public:
@@ -11,9 +12,18 @@ public:
         LEFT, MIDDLE, RIGHT
     };
 
-    struct RoadLane {
-        RoadLaneType type;
-        std::vector<lms::math::vertex2f> points;
+    class RoadLane:public lms::math::PolyLine<lms::math::vertex2f>{
+        RoadLaneType m_type;
+
+
+    public:
+        RoadLaneType type() const{
+            return m_type;
+        }
+
+        void type(RoadLaneType type){
+            m_type = type;
+        }
     };
     std::vector<RoadLane> lanes;
 };
