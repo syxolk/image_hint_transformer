@@ -18,13 +18,41 @@ bool ImageHintTransformer::deinitialize() {
 bool ImageHintTransformer::cycle() {
     environment->lanes.empty();
 
-    const lms::imaging::find::ImageHintBase *hint = hintContainer->getByName("LEFT_LANE");
-
+    //TODO Just for testing, that has to be changed so it can be defined via config
     Environment::RoadLane lane;
+    const lms::imaging::find::ImageHintBase *hint = hintContainer->getByName("LEFT_LANE");
+    if(hint != nullptr){
+    lane.type = Environment::RoadLaneType::LEFT;
+    convertLane(hint,lane);
+    environment->lanes.push_back(lane);
+    }else{
+        logger.error() << "LEFT LANE IS NULL";
+    }
+
+    hint = hintContainer->getByName("RIGHT_LANE");
+    if(hint != nullptr){
+    lane.type = Environment::RoadLaneType::RIGHT;
+    lane.points.clear();
+    convertLane(hint,lane);
+    environment->lanes.push_back(lane);
+    }else{
+        logger.error() << "RIGHT LANE IS NULL";
+    }
+
+    hint = hintContainer->getByName("MIDDLE_LANE");
+    if(hint != nullptr){
+        lane.type = Environment::RoadLaneType::MIDDLE;
+        lane.points.clear();
+        convertLane(hint,lane);
+        environment->lanes.push_back(lane);
+    }
+    return true;
+}
+
+void ImageHintTransformer::convertLane(const lms::imaging::find::ImageHintBase *hint, Environment::RoadLane &lane){
     lms::imaging::find::ImageHint<lms::imaging::find::Line> *line =
             (lms::imaging::find::ImageHint<lms::imaging::find::Line> *)hint;
 
-    lane.type = Environment::RoadLaneType::LEFT;
 
     for(const lms::imaging::find::LinePoint &linePoint : line->imageObject.points()) {
         lms::imaging::vertex2i in(linePoint.low_high.x, linePoint.low_high.y);
@@ -35,8 +63,4 @@ bool ImageHintTransformer::cycle() {
             lane.points.push_back(lms::imaging::vertex2f(out[0], out[1]));
         }
     }
-
-    environment->lanes.push_back(lane);
-
-    return true;
 }
