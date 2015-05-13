@@ -12,7 +12,7 @@ public:
         LEFT, MIDDLE, RIGHT
     };
 
-    class RoadLane:public lms::math::PolyLine<lms::math::vertex2f>{
+    class RoadLane:public lms::math::polyLine2f{
         RoadLaneType m_type;
 
 
