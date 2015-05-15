@@ -31,9 +31,9 @@ bool ImageHintTransformer::cycle() {
 
     hint = hintContainer->getByName("RIGHT_LANE");
     if(hint != nullptr){
-    lane.type(Environment::RoadLaneType::RIGHT);
-    lane.points().clear();
-    convertLane(hint,lane);
+        lane.type(Environment::RoadLaneType::RIGHT);
+        lane.points().clear();
+        convertLane(hint,lane);
     environment->lanes.push_back(lane);
     }else{
         logger.error() << "RIGHT LANE IS NULL";
