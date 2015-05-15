@@ -26,7 +26,7 @@ bool ImageHintTransformer::cycle() {
     convertLane(hint,lane);
     environment->lanes.push_back(lane);
     }else{
-        logger.error() << "LEFT LANE IS NULL";
+        logger.warn() << "LEFT LANE IS NULL";
     }
 
     hint = hintContainer->getByName("RIGHT_LANE");
@@ -36,7 +36,7 @@ bool ImageHintTransformer::cycle() {
         convertLane(hint,lane);
     environment->lanes.push_back(lane);
     }else{
-        logger.error() << "RIGHT LANE IS NULL";
+        logger.warn() << "RIGHT LANE IS NULL";
     }
 
     hint = hintContainer->getByName("MIDDLE_LANE");
