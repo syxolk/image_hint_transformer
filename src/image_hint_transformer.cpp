@@ -1,5 +1,5 @@
 #include "image_hint_transformer.h"
-#include "lms/imaging/find/line.h"
+#include "lms/imaging_detection/line.h"
 #include "lms/imaging/warp.h"
 
 bool ImageHintTransformer::initialize() {

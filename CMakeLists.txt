@@ -11,4 +11,4 @@ set (HEADERS
 include_directories("include")
 
 add_library (image_hint_transformer MODULE ${SOURCES} ${HEADERS})
-target_link_libraries(image_hint_transformer PRIVATE lms imaging)
+target_link_libraries(image_hint_transformer PRIVATE lms imaging imaging_detection)
