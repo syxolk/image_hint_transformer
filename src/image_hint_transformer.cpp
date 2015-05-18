@@ -1,6 +1,7 @@
 #include "image_hint_transformer.h"
 #include "lms/imaging_detection/line.h"
 #include "lms/imaging/warp.h"
+#include "lms/math/vertex.h"
 
 bool ImageHintTransformer::initialize() {
     hintContainer = datamanager()->
@@ -38,7 +39,7 @@ bool ImageHintTransformer::cycle() {
     }else{
         logger.warn() << "RIGHT LANE IS NULL";
     }
-
+    /*
     hint = hintContainer->getByName("MIDDLE_LANE");
     if(hint != nullptr){
         lane.type(Environment::RoadLaneType::MIDDLE);
@@ -46,6 +47,7 @@ bool ImageHintTransformer::cycle() {
         convertLane(hint,lane);
         environment->lanes.push_back(lane);
     }
+    */
     return true;
 }
 
@@ -57,7 +59,10 @@ void ImageHintTransformer::convertLane(const lms::imaging::find::ImageHintBase *
     for(const lms::imaging::find::LinePoint &linePoint : line->imageObject.points()) {
         //lms::math::vertex2i in(linePoint.low_high.x, linePoint.low_high.y);
         lms::math::vertex2f out;
-        bool success = lms::imaging::C2V(&linePoint.low_high, &out);
+        lms::math::vertex2i vi;
+        vi.x() = linePoint.low_high.x();
+        vi.y() = linePoint.low_high.y();
+        bool success = lms::imaging::C2V(&vi, &out);
 
         if(success) {
             lane.points().push_back(out);
