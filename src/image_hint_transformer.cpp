@@ -60,8 +60,8 @@ void ImageHintTransformer::convertLane(const lms::imaging::find::ImageHintBase *
         //lms::math::vertex2i in(linePoint.low_high.x, linePoint.low_high.y);
         lms::math::vertex2f out;
         lms::math::vertex2i vi;
-        vi.x() = linePoint.low_high.x();
-        vi.y() = linePoint.low_high.y();
+        vi.x = linePoint.low_high.x;
+        vi.y = linePoint.low_high.y;
         bool success = lms::imaging::C2V(&vi, &out);
 
         if(success) {
