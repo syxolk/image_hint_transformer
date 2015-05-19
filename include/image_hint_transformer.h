@@ -5,6 +5,7 @@
 #include "lms/datamanager.h"
 #include "lms/imaging_detection/image_hint.h"
 #include "image_objects/environment.h"
+#include "lms/imaging_detection/line.h"
 
 class ImageHintTransformer : public lms::Module {
 public:
@@ -15,6 +16,9 @@ private:
     const lms::imaging::find::HintContainer *hintContainer;
     Environment *environment;
     void convertLane(const lms::imaging::find::ImageHintBase *hint, Environment::RoadLane &lane);
+    void convertLine(const lms::imaging::find::Line &line,Environment::RoadLane &lane);
+    void convertMiddleLane(const lms::imaging::find::ImageHintBase *hint, Environment::RoadLane &lane);
+
 };
 
 #endif /* IMAGE_HINT_TRANSFORMER_H */
