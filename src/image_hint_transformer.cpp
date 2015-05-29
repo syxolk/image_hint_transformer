@@ -22,54 +22,38 @@ bool ImageHintTransformer::cycle() {
     environment->lanes.clear();
 
     //TODO Just for testing, that has to be changed so it can be defined via config
-    Environment::RoadLane lane;
-    const lms::imaging::find::ImageHintBase *hint = hintContainer->getByName("LEFT_LANE");
-    if(hint != nullptr){
-        lane.type(Environment::RoadLaneType::LEFT);
+    for(const lms::imaging::find::ImageHintBase *hint:hintContainer->hints){
+        logger.error("HINT_NAME: ") <<hint << " " <<hint->name <<" pointCount "<<(static_cast<const lms::imaging::find::ImageHint<lms::imaging::find::Line>*>(hint))->imageObject.points().size();
+
+        if(hint->name == "MIDDLE_LANE"){
+            continue; //That continue does some real magic -.-
+        }
+        Environment::RoadLane lane;
         convertLane(hint,lane);
-        environment->lanes.push_back(lane);
-    }else{
-        logger.warn() << "LEFT LANE IS NULL";
-    }
+        if(hint->name == "RIGHT_LANE"){
+            lane.type(Environment::RoadLaneType::RIGHT);
 
-    hint = hintContainer->getByName("RIGHT_LANE");
-    if(hint != nullptr){
-        lane.type(Environment::RoadLaneType::RIGHT);
-        lane.points().clear();
-        convertLane(hint,lane);
-        environment->lanes.push_back(lane);
-    }else{
-        logger.warn() << "RIGHT LANE IS NULL";
-    }
+        }else if(hint->name == "LEFT_LANE"){
+            lane.type(Environment::RoadLaneType::LEFT);
 
-    hint = hintContainer->getByName("MIDDLE_LANE");
-    if(hint != nullptr){
-        lane.type(Environment::RoadLaneType::MIDDLE);
-        lane.points().clear();
-        convertMiddleLane(hint,lane);
+        }else if(hint->name == "MIDDLE_LANE"){
+            lane.type(Environment::RoadLaneType::MIDDLE);
+        }else{
+            logger.error("cycle")<<"Convert lane with no type: " << hint->name;
+        }
         environment->lanes.push_back(lane);
     }
-
     return true;
 }
 
-
-void ImageHintTransformer::convertMiddleLane(const lms::imaging::find::ImageHintBase *hint, Environment::RoadLane &lane){
-    lms::imaging::find::ImageHint<lms::imaging::find::SplittedLine> *line =
-            (lms::imaging::find::ImageHint<lms::imaging::find::SplittedLine> *)hint;
-    for(const lms::imaging::find::Line &l : line->imageObject.lines()){
-        convertLine(l,lane);
-    }
-}
-
 void ImageHintTransformer::convertLane(const lms::imaging::find::ImageHintBase *hint, Environment::RoadLane &lane){
-    lms::imaging::find::ImageHint<lms::imaging::find::Line> *line =
-            (lms::imaging::find::ImageHint<lms::imaging::find::Line> *)hint;
-    convertLine(line->imageObject,lane);
+    convertLine(static_cast<const lms::imaging::find::ImageHint<lms::imaging::find::Line>*>(hint)->imageObject,lane);
 }
 
 void ImageHintTransformer::convertLine(const lms::imaging::find::Line &line,Environment::RoadLane &lane){
+    logger.info("HIER!");
     for(const lms::imaging::find::LinePoint &linePoint : line.points()) {
+        logger.info("DA!");
         //lms::math::vertex2i in(linePoint.low_high.x, linePoint.low_high.y);
         lms::math::vertex2f out;
         lms::math::vertex2i vi;

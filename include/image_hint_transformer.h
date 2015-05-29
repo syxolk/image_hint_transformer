@@ -17,7 +17,6 @@ private:
     Environment *environment;
     void convertLane(const lms::imaging::find::ImageHintBase *hint, Environment::RoadLane &lane);
     void convertLine(const lms::imaging::find::Line &line,Environment::RoadLane &lane);
-    void convertMiddleLane(const lms::imaging::find::ImageHintBase *hint, Environment::RoadLane &lane);
 
 };
 
