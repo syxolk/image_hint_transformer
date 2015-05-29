@@ -20,14 +20,8 @@ bool ImageHintTransformer::deinitialize() {
 
 bool ImageHintTransformer::cycle() {
     environment->lanes.clear();
-
     //TODO Just for testing, that has to be changed so it can be defined via config
     for(const lms::imaging::find::ImageHintBase *hint:hintContainer->hints){
-        logger.error("HINT_NAME: ") <<hint << " " <<hint->name <<" pointCount "<<(static_cast<const lms::imaging::find::ImageHint<lms::imaging::find::Line>*>(hint))->imageObject.points().size();
-
-        if(hint->name == "MIDDLE_LANE"){
-            continue; //That continue does some real magic -.-
-        }
         Environment::RoadLane lane;
         convertLane(hint,lane);
         if(hint->name == "RIGHT_LANE"){
@@ -51,10 +45,7 @@ void ImageHintTransformer::convertLane(const lms::imaging::find::ImageHintBase *
 }
 
 void ImageHintTransformer::convertLine(const lms::imaging::find::Line &line,Environment::RoadLane &lane){
-    logger.info("HIER!");
     for(const lms::imaging::find::LinePoint &linePoint : line.points()) {
-        logger.info("DA!");
-        //lms::math::vertex2i in(linePoint.low_high.x, linePoint.low_high.y);
         lms::math::vertex2f out;
         lms::math::vertex2i vi;
         vi.x = linePoint.low_high.x;
