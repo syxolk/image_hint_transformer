@@ -25,9 +25,9 @@ bool ImageHintTransformer::cycle() {
     Environment::RoadLane lane;
     const lms::imaging::find::ImageHintBase *hint = hintContainer->getByName("LEFT_LANE");
     if(hint != nullptr){
-    lane.type(Environment::RoadLaneType::LEFT);
-    convertLane(hint,lane);
-    environment->lanes.push_back(lane);
+        lane.type(Environment::RoadLaneType::LEFT);
+        convertLane(hint,lane);
+        environment->lanes.push_back(lane);
     }else{
         logger.warn() << "LEFT LANE IS NULL";
     }
@@ -37,7 +37,7 @@ bool ImageHintTransformer::cycle() {
         lane.type(Environment::RoadLaneType::RIGHT);
         lane.points().clear();
         convertLane(hint,lane);
-    environment->lanes.push_back(lane);
+        environment->lanes.push_back(lane);
     }else{
         logger.warn() << "RIGHT LANE IS NULL";
     }
