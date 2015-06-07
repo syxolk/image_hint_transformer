@@ -17,6 +17,9 @@ public:
 
 
     public:
+
+        std::vector<double> polarDarstellung; //TODO english name :)
+        float polarPartLength;
         RoadLaneType type() const{
             return m_type;
         }
