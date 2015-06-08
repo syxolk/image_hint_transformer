@@ -17,7 +17,12 @@ public:
 
 
     public:
-
+        /**
+         * @brief polarDarstellung
+         * polarDarstellung[0] is the y-deviance
+         * polarDarstellung[1] is the start-angle in rad
+         * polarDarstellung[>1] Krümmungen relativ zum vorherigen stück
+         */
         std::vector<double> polarDarstellung; //TODO english name :)
         float polarPartLength;
         RoadLaneType type() const{
