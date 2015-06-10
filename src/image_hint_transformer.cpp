@@ -9,7 +9,7 @@ bool ImageHintTransformer::initialize() {
     hintContainer = datamanager()->
             readChannel<lms::imaging::find::HintContainer>(this,"HINTS");
 
-    environment = datamanager()->writeChannel<Environment>(this, "ENVIRONMENT");
+    environment = datamanager()->writeChannel<street_environment::Environment>(this, "ENVIRONMENT");
 
     return true;
 }
@@ -19,32 +19,32 @@ bool ImageHintTransformer::deinitialize() {
 }
 
 bool ImageHintTransformer::cycle() {
-    environment->lanes.clear();
+    environment->objects.clear();
     //TODO Just for testing, that has to be changed so it can be defined via config
     for(const lms::imaging::find::ImageHintBase *hint:hintContainer->hints){
-        Environment::RoadLane lane;
-        convertLane(hint,lane);
+        std::shared_ptr<street_environment::RoadLane> lane(new street_environment::RoadLane());
+        convertLane(hint,*lane);
         if(hint->name == "RIGHT_LANE"){
-            lane.type(Environment::RoadLaneType::RIGHT);
+            lane->type(street_environment::RoadLaneType::RIGHT);
 
         }else if(hint->name == "LEFT_LANE"){
-            lane.type(Environment::RoadLaneType::LEFT);
+            lane->type(street_environment::RoadLaneType::LEFT);
 
         }else if(hint->name == "MIDDLE_LANE"){
-            lane.type(Environment::RoadLaneType::MIDDLE);
+            lane->type(street_environment::RoadLaneType::MIDDLE);
         }else{
             logger.error("cycle")<<"Convert lane with no type: " << hint->name;
         }
-        environment->lanes.push_back(lane);
+        environment->objects.push_back(lane);
     }
     return true;
 }
 
-void ImageHintTransformer::convertLane(const lms::imaging::find::ImageHintBase *hint, Environment::RoadLane &lane){
+void ImageHintTransformer::convertLane(const lms::imaging::find::ImageHintBase *hint, street_environment::RoadLane &lane){
     convertLine(static_cast<const lms::imaging::find::ImageHint<lms::imaging::find::Line>*>(hint)->imageObject,lane);
 }
 
-void ImageHintTransformer::convertLine(const lms::imaging::find::Line &line,Environment::RoadLane &lane){
+void ImageHintTransformer::convertLine(const lms::imaging::find::Line &line,street_environment::RoadLane &lane){
     for(const lms::imaging::find::LinePoint &linePoint : line.points()) {
         lms::math::vertex2f out;
         lms::math::vertex2i vi;

@@ -5,7 +5,6 @@ set ( SOURCES
 
 set (HEADERS
 	"include/image_hint_transformer.h"
-    "include/image_objects/environment.h"
 )
 
 include_directories("include")

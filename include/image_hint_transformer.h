@@ -4,7 +4,7 @@
 #include "lms/module.h"
 #include "lms/datamanager.h"
 #include "lms/imaging_detection/image_hint.h"
-#include "image_objects/environment.h"
+#include "street_environment/road.h"
 #include "lms/imaging_detection/line.h"
 
 class ImageHintTransformer : public lms::Module {
@@ -14,9 +14,9 @@ public:
     bool cycle() override;
 private:
     const lms::imaging::find::HintContainer *hintContainer;
-    Environment *environment;
-    void convertLane(const lms::imaging::find::ImageHintBase *hint, Environment::RoadLane &lane);
-    void convertLine(const lms::imaging::find::Line &line,Environment::RoadLane &lane);
+    street_environment::Environment *environment;
+    void convertLane(const lms::imaging::find::ImageHintBase *hint, street_environment::RoadLane &lane);
+    void convertLine(const lms::imaging::find::Line &line,street_environment::RoadLane &lane);
 
 };
 
