@@ -23,18 +23,23 @@ bool ImageHintTransformer::cycle() {
     //TODO Just for testing, that has to be changed so it can be defined via config
     for(const lms::imaging::find::ImageHintBase *hint:hintContainer->hints){
         std::shared_ptr<street_environment::RoadLane> lane(new street_environment::RoadLane());
-        convertLane(hint,*lane);
         if(hint->name == "RIGHT_LANE"){
             lane->type(street_environment::RoadLaneType::RIGHT);
-
+            logger.debug("cycle")<<"transform right lane";
         }else if(hint->name == "LEFT_LANE"){
             lane->type(street_environment::RoadLaneType::LEFT);
-
+            logger.debug("cycle")<<"transform left lane";
         }else if(hint->name == "MIDDLE_LANE"){
             lane->type(street_environment::RoadLaneType::MIDDLE);
+            logger.debug("cycle")<<"transform middle lane";
         }else{
             logger.error("cycle")<<"Convert lane with no type: " << hint->name;
+            continue;
         }
+        if(lane->points().size() == 0){
+            logger.warn("Converting lane with no points!");
+        }
+        convertLane(hint,*lane);
         environment->objects.push_back(lane);
     }
     return true;
@@ -51,7 +56,6 @@ void ImageHintTransformer::convertLine(const lms::imaging::find::Line &line,stre
         vi.x = linePoint.low_high.x;
         vi.y = linePoint.low_high.y;
         bool success = lms::imaging::C2V(&vi, &out);
-
         if(success) {
             lane.points().push_back(out);
         }
