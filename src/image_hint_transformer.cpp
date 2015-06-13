@@ -4,6 +4,7 @@
 
 #include "lms/imaging/warp.h"
 #include "lms/math/vertex.h"
+#include "street_environment/obstacle.h"
 
 bool ImageHintTransformer::initialize() {
     hintContainer = datamanager()->
@@ -22,25 +23,51 @@ bool ImageHintTransformer::cycle() {
     environment->objects.clear();
     //TODO Just for testing, that has to be changed so it can be defined via config
     for(const lms::imaging::find::ImageHintBase *hint:hintContainer->hints){
-        std::shared_ptr<street_environment::RoadLane> lane(new street_environment::RoadLane());
-        if(hint->name == "RIGHT_LANE"){
-            lane->type(street_environment::RoadLaneType::RIGHT);
-            logger.debug("cycle")<<"transform right lane";
-        }else if(hint->name == "LEFT_LANE"){
-            lane->type(street_environment::RoadLaneType::LEFT);
-            logger.debug("cycle")<<"transform left lane";
-        }else if(hint->name == "MIDDLE_LANE"){
-            lane->type(street_environment::RoadLaneType::MIDDLE);
-            logger.debug("cycle")<<"transform middle lane";
-        }else{
-            logger.error("cycle")<<"Convert lane with no type: " << hint->name;
-            continue;
+        if(hint->name.find("LANE") != std::string::npos){
+            std::shared_ptr<street_environment::RoadLane> lane(new street_environment::RoadLane());
+            if(hint->name == "RIGHT_LANE"){
+                lane->type(street_environment::RoadLaneType::RIGHT);
+                logger.debug("cycle")<<"transform right lane";
+            }else if(hint->name == "LEFT_LANE"){
+                lane->type(street_environment::RoadLaneType::LEFT);
+                logger.debug("cycle")<<"transform left lane";
+            }else if(hint->name == "MIDDLE_LANE"){
+                lane->type(street_environment::RoadLaneType::MIDDLE);
+                logger.debug("cycle")<<"transform middle lane";
+            }else{
+                logger.warn("cycle")<<"Convert lane with no type: " << hint->name;
+                continue;
+            }
+            if(lane->points().size() == 0){
+                logger.warn("Converting lane with no points!");
+            }
+            lane->name(hint->name);
+            convertLane(hint,*lane);
+            environment->objects.push_back(lane);
+        }else if(hint->name.find("OBSTACLE") != std::string::npos){
+            logger.debug("CONVERTING OBSTACLE!");
+            int minObstaclePoints = 2;
+            //TODO
+            const lms::imaging::find::Line &line = static_cast<const lms::imaging::find::ImageHint<lms::imaging::find::Line>*>(hint)->imageObject;
+            if((int)line.points().size() < minObstaclePoints){
+                //Hint may or may not be valid, not enough points available!
+                logger.debug("cycle")<<"Obstacle has not enough points: "<< line.points().size();
+                continue;
+            }
+            lms::math::vertex2f pos(0,0);
+            lms::math::vertex2f tmp;
+            for(const lms::imaging::find::LinePoint &lp:line.points()){
+                lms::math::vertex2i v(lp.low_high.x,lp.low_high.y);
+                lms::imaging::C2V(&v,&tmp);
+                pos += tmp;
+            }
+            pos /= (float)line.points().size();
+
+            std::shared_ptr<street_environment::Obstacle> obstacle(new street_environment::Obstacle());
+            obstacle->updatePosition(pos,lms::math::vertex2f(0,0));
+            obstacle->name(hint->name);
+            environment->objects.push_back(obstacle);
         }
-        if(lane->points().size() == 0){
-            logger.warn("Converting lane with no points!");
-        }
-        convertLane(hint,*lane);
-        environment->objects.push_back(lane);
     }
     return true;
 }
