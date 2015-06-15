@@ -1,6 +1,7 @@
 #include "image_hint_transformer.h"
 #include "lms/imaging_detection/line.h"
 #include "lms/imaging_detection/splitted_line.h"
+#include "lms/imaging_detection/point_line.h"
 
 #include "lms/imaging/warp.h"
 #include "lms/math/vertex.h"
@@ -39,7 +40,7 @@ bool ImageHintTransformer::cycle() {
                 continue;
             }
             if(lane->points().size() == 0){
-                logger.warn("Converting lane with no points!");
+                logger.info("Converting lane with no points!");
             }
             lane->name(hint->name);
             convertLane(hint,*lane);
@@ -47,7 +48,6 @@ bool ImageHintTransformer::cycle() {
         }else if(hint->name.find("OBSTACLE") != std::string::npos){
             logger.debug("CONVERTING OBSTACLE!");
             int minObstaclePoints = 2;
-            //TODO
             const lms::imaging::find::Line &line = static_cast<const lms::imaging::find::ImageHint<lms::imaging::find::Line>*>(hint)->imageObject;
             if((int)line.points().size() < minObstaclePoints){
                 //Hint may or may not be valid, not enough points available!
@@ -67,16 +67,34 @@ bool ImageHintTransformer::cycle() {
             obstacle->updatePosition(pos,lms::math::vertex2f(0,0));
             obstacle->name(hint->name);
             environment->objects.push_back(obstacle);
+        }else if(hint->name.find("CROSSING_LINE")){
+            const lms::imaging::find::LineBase *line;
+            if(hint->getHintType() == lms::imaging::find::PointLine::TYPE){
+                line = &static_cast<const lms::imaging::find::ImageHint<lms::imaging::find::PointLine>*>(hint)->imageObject;
+            }else if(hint->getHintType() == lms::imaging::find::Line::TYPE){
+                line = &static_cast<const lms::imaging::find::ImageHint<lms::imaging::find::Line>*>(hint)->imageObject;
+            }else{
+                logger.error("cycle") << "Invalid CROSSING_LINE type given: "<< hint->getHintType();
+                continue;
+            }
+
+            if(line->points().size() > 2){
+                logger.info("cycle") << "Found Crossing_Line!";
+            }
         }
     }
     return true;
 }
 
 void ImageHintTransformer::convertLane(const lms::imaging::find::ImageHintBase *hint, street_environment::RoadLane &lane){
-    convertLine(static_cast<const lms::imaging::find::ImageHint<lms::imaging::find::Line>*>(hint)->imageObject,lane);
+    if(hint->getHintType() == lms::imaging::find::PointLine::TYPE){
+        convertLine(static_cast<const lms::imaging::find::ImageHint<lms::imaging::find::PointLine>*>(hint)->imageObject,lane);
+    }else if(hint->getHintType() == lms::imaging::find::Line::TYPE){
+        convertLine(static_cast<const lms::imaging::find::ImageHint<lms::imaging::find::Line>*>(hint)->imageObject,lane);
+    }
 }
 
-void ImageHintTransformer::convertLine(const lms::imaging::find::Line &line,street_environment::RoadLane &lane){
+void ImageHintTransformer::convertLine(const lms::imaging::find::LineBase &line,street_environment::RoadLane &lane){
     for(const lms::imaging::find::LinePoint &linePoint : line.points()) {
         lms::math::vertex2f out;
         lms::math::vertex2i vi;

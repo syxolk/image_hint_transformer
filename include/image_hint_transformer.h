@@ -16,7 +16,7 @@ private:
     const lms::imaging::find::HintContainer *hintContainer;
     street_environment::Environment *environment;
     void convertLane(const lms::imaging::find::ImageHintBase *hint, street_environment::RoadLane &lane);
-    void convertLine(const lms::imaging::find::Line &line,street_environment::RoadLane &lane);
+    void convertLine(const lms::imaging::find::LineBase &line,street_environment::RoadLane &lane);
 
 };
 
