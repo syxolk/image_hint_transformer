@@ -13,6 +13,7 @@ bool ImageHintTransformer::initialize() {
 
     environment = datamanager()->writeChannel<street_environment::Environment>(this, "ENVIRONMENT");
 
+    middleEnv = datamanager()->writeChannel<street_environment::Environment>(this,"ENV_MID");
     return true;
 }
 
@@ -54,6 +55,18 @@ bool ImageHintTransformer::cycle() {
                 logger.debug("cycle")<<"Obstacle has not enough points: "<< line.points().size();
                 continue;
             }
+
+            if(middleEnv->objects.size() != 1){
+                logger.error("createHintsFromMiddleLane")<<"no valid evironment for middle-lane";
+                return true;
+            }
+            const street_environment::RoadLane &middle = middleEnv->objects[0]->getAsReference<const street_environment::RoadLane>();
+            if(middle.type() != street_environment::RoadLaneType::MIDDLE){
+                logger.error("createHintsFromMiddleLane") << "middle is no middle lane!";
+                return true;
+            }
+
+
             lms::math::vertex2f pos(0,0);
             lms::math::vertex2f tmp;
             for(const lms::imaging::find::LinePoint &lp:line.points()){
@@ -64,8 +77,11 @@ bool ImageHintTransformer::cycle() {
             pos /= (float)line.points().size();
 
             std::shared_ptr<street_environment::Obstacle> obstacle(new street_environment::Obstacle());
-            obstacle->updatePosition(pos,lms::math::vertex2f(0,0));
+            //TODO
+            logger.debug("POS-DAVOR") << pos.x << " " <<pos.y;
+            obstacle->updatePosition(pos,middle);
             obstacle->name(hint->name);
+            logger.debug("POS-DANACH") << obstacle->position.x << " " <<obstacle->position.y;
             environment->objects.push_back(obstacle);
         }else if(hint->name.find("CROSSING_LINE")){
             const lms::imaging::find::LineBase *line;
