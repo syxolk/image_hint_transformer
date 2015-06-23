@@ -78,10 +78,9 @@ bool ImageHintTransformer::cycle() {
 
             std::shared_ptr<street_environment::Obstacle> obstacle(new street_environment::Obstacle());
             //TODO
-            logger.debug("POS-DAVOR") << pos.x << " " <<pos.y;
-            obstacle->updatePosition(pos,middle);
+            obstacle->updatePosition(pos);
             obstacle->name(hint->name);
-            logger.debug("POS-DANACH") << obstacle->position.x << " " <<obstacle->position.y;
+            logger.debug("POS-DANACH") << obstacle->m_tmpPosition.x << " " <<obstacle->m_tmpPosition.y;
             environment->objects.push_back(obstacle);
         }else if(hint->name.find("CROSSING_LINE")){
             const lms::imaging::find::LineBase *line;
