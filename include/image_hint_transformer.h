@@ -14,8 +14,8 @@ public:
     bool cycle() override;
 private:
     const lms::imaging::find::HintContainer *hintContainer;
-    street_environment::Environment *environment;
-    const street_environment::Environment *middleEnv;
+    street_environment::EnvironmentObjects *environment;
+    const street_environment::EnvironmentObjects *middleEnv;
 
     void convertLane(const lms::imaging::find::ImageHintBase *hint, street_environment::RoadLane &lane);
     void convertLine(const lms::imaging::find::LineBase &line,street_environment::RoadLane &lane);

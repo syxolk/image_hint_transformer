@@ -11,9 +11,9 @@ bool ImageHintTransformer::initialize() {
     hintContainer = datamanager()->
             readChannel<lms::imaging::find::HintContainer>(this,"HINTS");
 
-    environment = datamanager()->writeChannel<street_environment::Environment>(this, "ENVIRONMENT");
+    environment = datamanager()->writeChannel<street_environment::EnvironmentObjects>(this, "ENVIRONMENT");
 
-    middleEnv = datamanager()->writeChannel<street_environment::Environment>(this,"ENV_MID");
+    middleEnv = datamanager()->writeChannel<street_environment::EnvironmentObjects>(this,"ENV_MID");
     return true;
 }
 
