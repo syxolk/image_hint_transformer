@@ -2,10 +2,12 @@
 #include "lms/imaging_detection/line.h"
 #include "lms/imaging_detection/splitted_line.h"
 #include "lms/imaging_detection/point_line.h"
+#include "lms/imaging_detection/street_crossing.h"
 
 #include "lms/imaging/warp.h"
 #include "lms/math/vertex.h"
 #include "street_environment/obstacle.h"
+#include "street_environment/crossing.h"
 
 bool ImageHintTransformer::initialize() {
     hintContainer = datamanager()->
@@ -68,20 +70,21 @@ bool ImageHintTransformer::cycle() {
             obstacle->updatePosition(pos);
             obstacle->name(hint->name);
             environment->objects.push_back(obstacle);
-        }else if(hint->name.find("CROSSING_LINE")){
-            const lms::imaging::find::LineBase *line;
-            if(hint->getHintType() == lms::imaging::find::PointLine::TYPE){
-                line = &static_cast<const lms::imaging::find::ImageHint<lms::imaging::find::PointLine>*>(hint)->imageObject;
-            }else if(hint->getHintType() == lms::imaging::find::Line::TYPE){
-                line = &static_cast<const lms::imaging::find::ImageHint<lms::imaging::find::Line>*>(hint)->imageObject;
-            }else{
-                logger.error("cycle") << "Invalid CROSSING_LINE type given: "<< hint->getHintType();
-                continue;
-            }
+        }else if(hint->name.find("CROSSING")){
+            const lms::imaging::find::StreetCrossing *crossingImage;
+            crossingImage = &static_cast<const lms::imaging::find::ImageHint<lms::imaging::find::StreetCrossing>*>(hint)->imageObject;
 
-            if(line->points().size() > 2){
-                logger.info("cycle") << "Found Crossing_Line!";
-            }
+            lms::math::vertex2f out;
+            lms::math::vertex2i vi;
+            vi.x = crossingImage->x();
+            vi.y = crossingImage->y();
+            lms::imaging::C2V(&vi, &out);
+
+
+            std::shared_ptr<street_environment::Crossing> crossing(new street_environment::Crossing());
+            crossing->blocked(crossingImage->blocked);
+
+            environment->objects.push_back(crossing);
         }
     }
     return true;
