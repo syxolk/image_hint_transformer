@@ -3,6 +3,8 @@
 #include "lms/imaging_detection/splitted_line.h"
 #include "lms/imaging_detection/point_line.h"
 #include "lms/imaging_detection/street_crossing.h"
+#include "lms/imaging_detection/street_obstacle.h"
+
 
 #include "lms/imaging/warp.h"
 #include "lms/math/vertex.h"
@@ -23,6 +25,7 @@ bool ImageHintTransformer::deinitialize() {
 
 bool ImageHintTransformer::cycle() {
     environment->objects.clear();
+    //TODO remove name checking!
     //TODO Just for testing, that has to be changed so it can be defined via config
     for(const lms::imaging::find::ImageHintBase *hint:hintContainer->hints){
         if(hint->name.find("LANE") != std::string::npos){
@@ -47,29 +50,50 @@ bool ImageHintTransformer::cycle() {
             convertLane(hint,*lane);
             environment->objects.push_back(lane);
         }else if(hint->name.find("OBSTACLE") != std::string::npos){
-            logger.debug("CONVERTING OBSTACLE!");
-            int minObstaclePoints = 2;
-            const lms::imaging::find::Line &line = static_cast<const lms::imaging::find::ImageHint<lms::imaging::find::Line>*>(hint)->imageObject;
-            if((int)line.points().size() < minObstaclePoints){
-                //Hint may or may not be valid, not enough points available!
-                logger.debug("cycle")<<"Obstacle has not enough points: "<< line.points().size();
-                continue;
+            if(hint->getHintType() == lms::imaging::find::Line::TYPE){
+                logger.debug("CONVERTING OBSTACLE!");
+                int minObstaclePoints = 2;
+                const lms::imaging::find::Line &line = static_cast<const lms::imaging::find::ImageHint<lms::imaging::find::Line>*>(hint)->imageObject;
+                if((int)line.points().size() < minObstaclePoints){
+                    //Hint may or may not be valid, not enough points available!
+                    logger.debug("cycle")<<"Obstacle has not enough points: "<< line.points().size();
+                    continue;
+                }
+
+                lms::math::vertex2f pos(0,0);
+                lms::math::vertex2f tmp;
+                for(const lms::imaging::find::LinePoint &lp:line.points()){
+                    lms::math::vertex2i v(lp.low_high.x,lp.low_high.y);
+                    lms::imaging::C2V(&v,&tmp);
+                    pos += tmp;
+                }
+                pos /= (float)line.points().size();
+
+                std::shared_ptr<street_environment::Obstacle> obstacle(new street_environment::Obstacle());
+
+                obstacle->updatePosition(pos);
+                obstacle->name(hint->name);
+                environment->objects.push_back(obstacle);
+            }else if(hint->getHintType() == lms::imaging::find::StreetObstacle::TYPE){
+                const lms::imaging::find::StreetObstacle &obs = static_cast<const lms::imaging::find::ImageHint<lms::imaging::find::StreetObstacle>*>(hint)->imageObject;
+
+                lms::math::vertex2f pos(0,0);
+                lms::math::vertex2f tmp;
+                for(const lms::imaging::find::LinePoint &lp:obs.edgeLine.points()){
+                    lms::math::vertex2i v(lp.low_high.x,lp.low_high.y);
+                    lms::imaging::C2V(&v,&tmp);
+                    pos += tmp;
+                }
+                pos /= (float)obs.edgeLine.points().size();
+
+                std::shared_ptr<street_environment::Obstacle> obstacle(new street_environment::Obstacle());
+
+                obstacle->updatePosition(pos);
+                obstacle->name(hint->name);
+                environment->objects.push_back(obstacle);
+
+
             }
-
-            lms::math::vertex2f pos(0,0);
-            lms::math::vertex2f tmp;
-            for(const lms::imaging::find::LinePoint &lp:line.points()){
-                lms::math::vertex2i v(lp.low_high.x,lp.low_high.y);
-                lms::imaging::C2V(&v,&tmp);
-                pos += tmp;
-            }
-            pos /= (float)line.points().size();
-
-            std::shared_ptr<street_environment::Obstacle> obstacle(new street_environment::Obstacle());
-
-            obstacle->updatePosition(pos);
-            obstacle->name(hint->name);
-            environment->objects.push_back(obstacle);
         }else if(hint->name.find("CROSSING")){
             const lms::imaging::find::StreetCrossing *crossingImage;
             crossingImage = &static_cast<const lms::imaging::find::ImageHint<lms::imaging::find::StreetCrossing>*>(hint)->imageObject;
