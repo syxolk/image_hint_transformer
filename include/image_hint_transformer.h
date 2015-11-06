@@ -13,8 +13,8 @@ public:
     bool deinitialize() override;
     bool cycle() override;
 private:
-    const lms::imaging::detection::HintContainer *hintContainer;
-    street_environment::EnvironmentObjects *environment;
+    lms::ReadDataChannel<lms::imaging::detection::HintContainer> hintContainer;
+    lms::WriteDataChannel<street_environment::EnvironmentObjects> environment;
     //const street_environment::EnvironmentObjects *middleEnv;
 
     void convertLane(const lms::imaging::detection::ImageHintBase *hint, street_environment::RoadLane &lane);
