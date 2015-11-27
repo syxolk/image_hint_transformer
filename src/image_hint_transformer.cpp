@@ -76,21 +76,22 @@ bool ImageHintTransformer::cycle() {
                 environment->objects.push_back(obstacle);
             }else if(hint->getHintType() == lms::imaging::detection::StreetObstacle::TYPE){
                 const lms::imaging::detection::StreetObstacle &obs = static_cast<const lms::imaging::detection::ImageHint<lms::imaging::detection::StreetObstacle>*>(hint)->imageObject;
+                for(const lms::imaging::detection::Line &line:obs.results){
+                    lms::math::vertex2f pos(0,0);
+                    lms::math::vertex2f tmp;
+                    for(const lms::imaging::detection::LinePoint &lp:line.points()){
+                        lms::math::vertex2i v(lp.low_high.x,lp.low_high.y);
+                        lms::imaging::C2V(&v,&tmp);
+                        pos += tmp;
+                    }
+                    pos /= (float)line.points().size();
 
-                lms::math::vertex2f pos(0,0);
-                lms::math::vertex2f tmp;
-                for(const lms::imaging::detection::LinePoint &lp:obs.edgeLine.points()){
-                    lms::math::vertex2i v(lp.low_high.x,lp.low_high.y);
-                    lms::imaging::C2V(&v,&tmp);
-                    pos += tmp;
+                    std::shared_ptr<street_environment::Obstacle> obstacle(new street_environment::Obstacle());
+
+                    obstacle->updatePosition(pos);
+                    obstacle->name(hint->name);
+                    environment->objects.push_back(obstacle);
                 }
-                pos /= (float)obs.edgeLine.points().size();
-
-                std::shared_ptr<street_environment::Obstacle> obstacle(new street_environment::Obstacle());
-
-                obstacle->updatePosition(pos);
-                obstacle->name(hint->name);
-                environment->objects.push_back(obstacle);
 
 
             }
