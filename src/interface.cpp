@@ -1,9 +1,3 @@
 #include "image_hint_transformer.h"
 
-extern "C" {
-
-void* getInstance() {
-    return new ImageHintTransformer();
-}
-
-}
+LMS_MODULE_INTERFACE(ImageHintTransformer)
