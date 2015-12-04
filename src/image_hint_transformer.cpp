@@ -13,7 +13,6 @@
 
 bool ImageHintTransformer::initialize() {
     hintContainer = readChannel<lms::imaging::detection::HintContainer>("HINTS");
-
     environment = writeChannel<street_environment::EnvironmentObjects>("ENVIRONMENT");
     return true;
 }
@@ -63,9 +62,8 @@ bool ImageHintTransformer::cycle() {
                     }
                     pos /= (float)line.points().size();
                     logger.debug("cycle")<<"adding obstacle at"<<pos.x << " "<<pos.y;
-
                     std::shared_ptr<street_environment::Obstacle> obstacle(new street_environment::Obstacle());
-
+                    obstacle->trustIt(line.points().size());//set the trust
                     obstacle->updatePosition(pos);
                     obstacle->name(hint->name);
                     environment->objects.push_back(obstacle);
