@@ -10,6 +10,7 @@
 #include "lms/math/vertex.h"
 #include "street_environment/obstacle.h"
 #include "street_environment/crossing.h"
+#include "street_environment/start_line.h"
 
 bool ImageHintTransformer::initialize() {
     hintContainer = readChannel<lms::imaging::detection::HintContainer>("HINTS");
@@ -68,21 +69,31 @@ bool ImageHintTransformer::cycle() {
                     obstacle->name(hint->name);
                     environment->objects.push_back(obstacle);
                 }
-        }else if(hint->name.find("CROSSING")){
+        }else if(hint->getHintType() == lms::imaging::detection::StreetCrossing::TYPE){
             const lms::imaging::detection::StreetCrossing *crossingImage;
             crossingImage = &static_cast<const lms::imaging::detection::ImageHint<lms::imaging::detection::StreetCrossing>*>(hint)->imageObject;
+            if(crossingImage->foundStartLine){
+                lms::math::vertex2f out;
+                lms::math::vertex2i vi;
+                vi.x = crossingImage->x();
+                vi.y = crossingImage->y();
+                lms::imaging::C2V(&vi, &out);
+                std::shared_ptr<street_environment::StartLine> crossing(new street_environment::StartLine());
+                crossing->updatePosition(out);
+                crossing->trustIt(crossingImage->leftPartStartLine.points().size() + crossingImage->stopLine.points().size());
+                environment->objects.push_back(crossing);
 
-            lms::math::vertex2f out;
-            lms::math::vertex2i vi;
-            vi.x = crossingImage->x();
-            vi.y = crossingImage->y();
-            lms::imaging::C2V(&vi, &out);
-
-
-            std::shared_ptr<street_environment::Crossing> crossing(new street_environment::Crossing());
-            crossing->blocked(crossingImage->blocked);
-
-            environment->objects.push_back(crossing);
+            }else if(crossingImage->foundCrossing){
+                lms::math::vertex2f out;
+                lms::math::vertex2i vi;
+                vi.x = crossingImage->x();
+                vi.y = crossingImage->y();
+                lms::imaging::C2V(&vi, &out);
+                std::shared_ptr<street_environment::Crossing> crossing(new street_environment::Crossing());
+                crossing->blocked(crossingImage->blocked);
+                crossing->updatePosition(out);
+                environment->objects.push_back(crossing);
+            }
         }
     }
     return true;
