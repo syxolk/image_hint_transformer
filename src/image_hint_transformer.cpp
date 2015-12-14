@@ -64,7 +64,8 @@ bool ImageHintTransformer::cycle() {
                     pos /= (float)line.points().size();
                     logger.debug("cycle")<<"adding obstacle at"<<pos.x << " "<<pos.y;
                     std::shared_ptr<street_environment::Obstacle> obstacle(new street_environment::Obstacle());
-                    obstacle->trustIt(line.points().size());//set the trust
+                    //TODO set trust
+                    obstacle->setTrust(0.1);//set the trust
                     obstacle->updatePosition(pos);
                     obstacle->name(hint->name);
                     environment->objects.push_back(obstacle);
@@ -80,7 +81,8 @@ bool ImageHintTransformer::cycle() {
                 lms::imaging::C2V(&vi, &out);
                 std::shared_ptr<street_environment::StartLine> crossing(new street_environment::StartLine());
                 crossing->updatePosition(out);
-                crossing->trustIt(crossingImage->leftPartStartLine.points().size() + crossingImage->stopLine.points().size());
+                //TODO set trust
+                crossing->setTrust(0.1);
                 environment->objects.push_back(crossing);
 
             }else if(crossingImage->foundCrossing){
@@ -91,6 +93,8 @@ bool ImageHintTransformer::cycle() {
                 lms::imaging::C2V(&vi, &out);
                 std::shared_ptr<street_environment::Crossing> crossing(new street_environment::Crossing());
                 crossing->blocked(crossingImage->blocked);
+                //TODO set trust
+                crossing->setTrust(0.1);
                 crossing->updatePosition(out);
                 environment->objects.push_back(crossing);
             }
