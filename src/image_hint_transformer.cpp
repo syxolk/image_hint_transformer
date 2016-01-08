@@ -54,6 +54,7 @@ bool ImageHintTransformer::cycle() {
                 logger.debug(getName())<<"found obstacle pointCount: "<<&obs.results<<" "<<obs.results.size();
                 for(const lms::imaging::detection::Line &line:obs.results){
                     logger.debug(getName())<<"found obstacle pointCount: "<<line.points().size();
+                    //get the position
                     lms::math::vertex2f pos(0,0);
                     lms::math::vertex2f tmp;
                     for(const lms::imaging::detection::LinePoint &lp:line.points()){
@@ -63,11 +64,25 @@ bool ImageHintTransformer::cycle() {
                     }
                     pos /= (float)line.points().size();
                     logger.debug("cycle")<<"adding obstacle at"<<pos.x << " "<<pos.y;
+                    //get the viewDirection
+
+                    lms::math::vertex2i i1(line.points()[0].low_high.x,line.points()[0].low_high.y);
+                    lms::math::vertex2i i2(line.points()[line.points().size()-1].low_high.x,line.points()[line.points().size()-1].low_high.y);
+
+                    lms::math::vertex2f pos1(0,0);
+                    lms::math::vertex2f pos2(0,0);
+                    lms::imaging::C2V(&i1,&pos1);
+                    lms::imaging::C2V(&i2,&pos2);
+                    lms::math::vertex2f viewDir = (pos1-pos2).rotateAntiClockwise90deg();
+                    float obstWidth = pos1.distance(pos2);
+
                     std::shared_ptr<street_environment::Obstacle> obstacle(new street_environment::Obstacle());
                     //TODO set trust
                     obstacle->setTrust(0.1);//set the trust
                     obstacle->updatePosition(pos);
                     obstacle->name(hint->name);
+                    obstacle->viewDirection(viewDir);
+                    obstacle->width(obstWidth);
                     environment->objects.push_back(obstacle);
                 }
         }else if(hint->getHintType() == lms::imaging::detection::StreetCrossing::TYPE){
