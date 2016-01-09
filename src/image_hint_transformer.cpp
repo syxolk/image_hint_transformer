@@ -93,22 +93,34 @@ bool ImageHintTransformer::cycle() {
             vi.x = crossingImage->x();
             vi.y = crossingImage->y();
             lms::imaging::C2V(&vi, &out);
-            lms::math::vertex2i vi1 = static_cast<lms::math::vertex2i>(crossingImage->stopLine.points()[0].low_high);
-            lms::math::vertex2i vi2= static_cast<lms::math::vertex2i>(crossingImage->stopLine.points()[crossingImage->stopLine.points().size()-1].low_high);
-            lms::math::vertex2f out1;
-            lms::math::vertex2f out2;
-            lms::imaging::C2V(&vi1, &out1);
-            lms::imaging::C2V(&vi2, &out2);
             if(crossingImage->foundStartLine){
+                //Calc view dir
+                lms::math::vertex2i vi1 = static_cast<lms::math::vertex2i>(crossingImage->leftPartStartLine.getAveragePoint());
+                lms::math::vertex2i vi2= static_cast<lms::math::vertex2i>(crossingImage->stopLine.getAveragePoint());
+                lms::math::vertex2f out1;
+                lms::math::vertex2f out2;
+                lms::imaging::C2V(&vi1, &out1);
+                lms::imaging::C2V(&vi2, &out2);
+                lms::math::vertex2f viewDir = (out1-out2).rotateAntiClockwise90deg().normalize();
+
                 std::shared_ptr<street_environment::StartLine> startLine(new street_environment::StartLine());
                 startLine->updatePosition(out);
-                startLine->viewDirection((out1-out2).rotateAntiClockwise90deg());
+                startLine->viewDirection(viewDir);
                 startLine->setTrust(0.5);
                 environment->objects.push_back(startLine);
             }else if(crossingImage->foundCrossing){
+                //Calc view dir
+                lms::math::vertex2i vi1 = static_cast<lms::math::vertex2i>(crossingImage->stopLine.points()[0].low_high);
+                lms::math::vertex2i vi2= static_cast<lms::math::vertex2i>(crossingImage->stopLine.points()[crossingImage->stopLine.points().size()-1].low_high);
+                lms::math::vertex2f out1;
+                lms::math::vertex2f out2;
+                lms::imaging::C2V(&vi1, &out1);
+                lms::imaging::C2V(&vi2, &out2);
+                lms::math::vertex2f viewDir = (out1-out2).rotateAntiClockwise90deg().normalize();
+
                 std::shared_ptr<street_environment::Crossing> crossing(new street_environment::Crossing());
                 crossing->blocked(crossingImage->blocked);
-                crossing->viewDirection((out1-out2).rotateAntiClockwise90deg());
+                crossing->viewDirection(viewDir);
                 crossing->setTrust(0.5);
                 crossing->updatePosition(out);
                 environment->objects.push_back(crossing);
