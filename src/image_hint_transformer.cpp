@@ -25,7 +25,6 @@ bool ImageHintTransformer::deinitialize() {
 bool ImageHintTransformer::cycle() {
     environment->objects.clear();
     //TODO remove name checking!
-    //TODO Just for testing, that has to be changed so it can be defined via config
     for(const lms::imaging::detection::ImageHintBase *hint:hintContainer->hints){
         if(hint->name.find("LANE") != std::string::npos){
             std::shared_ptr<street_environment::RoadLane> lane(new street_environment::RoadLane());
@@ -77,7 +76,6 @@ bool ImageHintTransformer::cycle() {
                     float obstWidth = pos1.distance(pos2);
 
                     std::shared_ptr<street_environment::Obstacle> obstacle(new street_environment::Obstacle());
-                    //TODO set trust
                     obstacle->setTrust(0.1);//set the trust
                     obstacle->updatePosition(pos);
                     obstacle->name(hint->name);
@@ -86,32 +84,36 @@ bool ImageHintTransformer::cycle() {
                     environment->objects.push_back(obstacle);
                 }
         }else if(hint->getHintType() == lms::imaging::detection::StreetCrossing::TYPE){
-            const lms::imaging::detection::StreetCrossing *crossingImage;
-            crossingImage = &static_cast<const lms::imaging::detection::ImageHint<lms::imaging::detection::StreetCrossing>*>(hint)->imageObject;
+            const lms::imaging::detection::StreetCrossing *crossingImage = &static_cast<const lms::imaging::detection::ImageHint<lms::imaging::detection::StreetCrossing>*>(hint)->imageObject;
+            if(crossingImage->stopLine.points().size() < 2){
+                continue;
+            }
+            lms::math::vertex2f out;
+            lms::math::vertex2i vi;
+            vi.x = crossingImage->x();
+            vi.y = crossingImage->y();
+            lms::imaging::C2V(&vi, &out);
+            lms::math::vertex2i vi1 = static_cast<lms::math::vertex2i>(crossingImage->stopLine.points()[0].low_high);
+            lms::math::vertex2i vi2= static_cast<lms::math::vertex2i>(crossingImage->stopLine.points()[crossingImage->stopLine.points().size()-1].low_high);
+            lms::math::vertex2f out1;
+            lms::math::vertex2f out2;
+            lms::imaging::C2V(&vi1, &out1);
+            lms::imaging::C2V(&vi2, &out2);
             if(crossingImage->foundStartLine){
-                lms::math::vertex2f out;
-                lms::math::vertex2i vi;
-                vi.x = crossingImage->x();
-                vi.y = crossingImage->y();
-                lms::imaging::C2V(&vi, &out);
-                std::shared_ptr<street_environment::StartLine> crossing(new street_environment::StartLine());
-                crossing->updatePosition(out);
-                //TODO set trust
-                crossing->setTrust(0.1);
-                environment->objects.push_back(crossing);
-
+                std::shared_ptr<street_environment::StartLine> startLine(new street_environment::StartLine());
+                startLine->updatePosition(out);
+                startLine->viewDirection((out1-out2).rotateAntiClockwise90deg());
+                startLine->setTrust(0.5);
+                environment->objects.push_back(startLine);
             }else if(crossingImage->foundCrossing){
-                lms::math::vertex2f out;
-                lms::math::vertex2i vi;
-                vi.x = crossingImage->x();
-                vi.y = crossingImage->y();
-                lms::imaging::C2V(&vi, &out);
                 std::shared_ptr<street_environment::Crossing> crossing(new street_environment::Crossing());
                 crossing->blocked(crossingImage->blocked);
-                //TODO set trust
-                crossing->setTrust(0.1);
+                crossing->viewDirection((out1-out2).rotateAntiClockwise90deg());
+                crossing->setTrust(0.5);
                 crossing->updatePosition(out);
                 environment->objects.push_back(crossing);
+            }else{
+                continue;
             }
         }
     }
