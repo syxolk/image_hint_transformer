@@ -76,7 +76,7 @@ bool ImageHintTransformer::cycle() {
                     float obstWidth = pos1.distance(pos2);
 
                     std::shared_ptr<street_environment::Obstacle> obstacle(new street_environment::Obstacle());
-                    obstacle->setTrust(0.1);//set the trust
+                    obstacle->setTrust(0.1);//Set default trust
                     obstacle->updatePosition(pos);
                     obstacle->name(hint->name);
                     obstacle->viewDirection(viewDir);
