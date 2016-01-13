@@ -106,7 +106,7 @@ bool ImageHintTransformer::cycle() {
                 std::shared_ptr<street_environment::StartLine> startLine(new street_environment::StartLine());
                 startLine->updatePosition(out);
                 startLine->viewDirection(viewDir);
-                startLine->setTrust(0.5);
+                startLine->setTrust(0.1);
                 environment->objects.push_back(startLine);
             }else if(crossingImage->foundCrossing){
                 //Calc view dir
@@ -121,7 +121,7 @@ bool ImageHintTransformer::cycle() {
                 std::shared_ptr<street_environment::Crossing> crossing(new street_environment::Crossing());
                 crossing->blocked(crossingImage->blocked);
                 crossing->viewDirection(viewDir);
-                crossing->setTrust(0.5);
+                crossing->setTrust(0.1);
                 crossing->updatePosition(out);
                 environment->objects.push_back(crossing);
             }else{
