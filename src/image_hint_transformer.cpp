@@ -123,6 +123,7 @@ bool ImageHintTransformer::cycle() {
 
                 std::shared_ptr<street_environment::Crossing> crossing(new street_environment::Crossing());
                 crossing->blocked(crossingImage->blocked);
+                //logger.debug("CROSSING IS BLOCKED? ")<<crossing->blocked();
                 crossing->viewDirection(viewDir);
                 crossing->setTrust(0.1);
                 crossing->updatePosition(out);
