@@ -110,22 +110,35 @@ bool ImageHintTransformer::cycle() {
                 environment->objects.push_back(startLine);
             }else if(crossingImage->foundCrossing){
                 //Calc view dir
+                lms::math::vertex2f viewDir;
                 //left point
-                lms::math::vertex2i vi1 = static_cast<lms::math::vertex2i>(crossingImage->stopLine.points()[0].low_high);
-                //right point
-                //lms::math::vertex2i vi2= static_cast<lms::math::vertex2i>(crossingImage->stopLine.points()[crossingImage->stopLine.points().size()-1].low_high);
-                lms::math::vertex2i vi2= static_cast<lms::math::vertex2i>(crossingImage->oppositeStopLine.points()[crossingImage->oppositeStopLine.points().size()-1].low_high);
+                lms::math::vertex2i vi1 = static_cast<lms::math::vertex2i>(crossingImage->stopLine.points()[crossingImage->stopLine.points().size()/2].low_high);
                 lms::math::vertex2f out1;
-                lms::math::vertex2f out2;
                 lms::imaging::C2V(&vi1, &out1);
-                lms::imaging::C2V(&vi2, &out2);
-                lms::math::vertex2f viewDir = (out2-out1)/*.rotateAntiClockwise90deg()*/.normalize();
+                //right point
+                if(crossingImage->oppositeStopLineFound){
+                    lms::math::vertex2i vi2 = static_cast<lms::math::vertex2i>(crossingImage->stopLine.points()[crossingImage->stopLine.points().size()-1].low_high);
+
+                    lms::math::vertex2f out2;
+                    lms::imaging::C2V(&vi2, &out2);
+                    viewDir = (out2-out1).normalize();
+                }else{
+                    lms::math::vertex2i vi2 = static_cast<lms::math::vertex2i>(crossingImage->rightCrossingLine.low_high);
+                    lms::math::vertex2f out2;
+                    lms::imaging::C2V(&vi2, &out2);
+                    viewDir = (out2-out1).rotateAntiClockwise90deg().normalize();
+                }
 
                 std::shared_ptr<street_environment::Crossing> crossing(new street_environment::Crossing());
                 crossing->blocked(crossingImage->blocked);
                 //logger.debug("CROSSING IS BLOCKED? ")<<crossing->blocked();
                 crossing->viewDirection(viewDir);
-                crossing->setTrust(0.1);
+                if(crossingImage->oppositeStopLineFound){
+                    crossing->setTrust(0.3);
+
+                }else{
+                    crossing->setTrust(0.1);
+                }
                 crossing->updatePosition(out);
                 environment->objects.push_back(crossing);
             }else{
