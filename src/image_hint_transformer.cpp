@@ -131,11 +131,11 @@ bool ImageHintTransformer::cycle() {
 
                 std::shared_ptr<street_environment::Crossing> crossing(new street_environment::Crossing());
                 crossing->blocked(crossingImage->blocked);
+                crossing->foundOppositeStopLine = crossingImage->oppositeStopLineFound;
                 //logger.debug("CROSSING IS BLOCKED? ")<<crossing->blocked();
                 crossing->viewDirection(viewDir);
                 if(crossingImage->oppositeStopLineFound){
-                    crossing->setTrust(0.3);
-
+                    crossing->setTrust(0.1);
                 }else{
                     crossing->setTrust(0.1);
                 }
