@@ -117,7 +117,7 @@ bool ImageHintTransformer::cycle() {
                 lms::imaging::C2V(&vi1, &out1);
                 //right point
                 if(crossingImage->oppositeStopLineFound){
-                    lms::math::vertex2i vi2 = static_cast<lms::math::vertex2i>(crossingImage->stopLine.points()[crossingImage->stopLine.points().size()-1].low_high);
+                    lms::math::vertex2i vi2 = static_cast<lms::math::vertex2i>(crossingImage->oppositeStopLine.points()[crossingImage->oppositeStopLine.points().size()-1].low_high);
 
                     lms::math::vertex2f out2;
                     lms::imaging::C2V(&vi2, &out2);
