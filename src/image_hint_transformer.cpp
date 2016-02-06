@@ -116,18 +116,19 @@ bool ImageHintTransformer::cycle() {
                 lms::math::vertex2f out1;
                 lms::imaging::C2V(&vi1, &out1);
                 //right point
-                if(crossingImage->oppositeStopLineFound && config().get<bool>("crossingUseOppositeLine",false)){
+                /*TODO The angle is quite weird sometimes
+                 * if(crossingImage->oppositeStopLineFound && config().get<bool>("crossingUseOppositeLine",false)){
                     lms::math::vertex2i vi2 = static_cast<lms::math::vertex2i>(crossingImage->oppositeStopLine.points()[crossingImage->oppositeStopLine.points().size()-1].low_high);
 
                     lms::math::vertex2f out2;
                     lms::imaging::C2V(&vi2, &out2);
                     viewDir = (out2-out1).normalize();
-                }else{
-                    lms::math::vertex2i vi2 = static_cast<lms::math::vertex2i>(crossingImage->rightCrossingLine.low_high);
-                    lms::math::vertex2f out2;
-                    lms::imaging::C2V(&vi2, &out2);
-                    viewDir = (out2-out1).rotateAntiClockwise90deg().normalize();
-                }
+                }else{*/
+                lms::math::vertex2i vi2 = static_cast<lms::math::vertex2i>(crossingImage->rightCrossingLine.low_high);
+                lms::math::vertex2f out2;
+                lms::imaging::C2V(&vi2, &out2);
+                viewDir = (out2-out1).rotateAntiClockwise90deg().normalize();
+                //}
 
                 std::shared_ptr<street_environment::Crossing> crossing(new street_environment::Crossing());
                 crossing->blocked(crossingImage->blocked);
@@ -135,7 +136,7 @@ bool ImageHintTransformer::cycle() {
                 //logger.debug("CROSSING IS BLOCKED? ")<<crossing->blocked();
                 crossing->viewDirection(viewDir);
                 if(crossingImage->oppositeStopLineFound){
-                    crossing->setTrust(0.1);
+                    crossing->setTrust(0.2);
                 }else{
                     crossing->setTrust(0.1);
                 }
