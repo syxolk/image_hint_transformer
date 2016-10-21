@@ -77,9 +77,9 @@ bool ImageHintTransformer::cycle() {
 
                     std::shared_ptr<street_environment::Obstacle> obstacle(new street_environment::Obstacle());
                     obstacle->setTrust(0.1);//Set default trust
-                    obstacle->updatePosition(pos);
+                    obstacle->addPoint(pos);
                     obstacle->name(hint->name);
-                    obstacle->viewDirection(viewDir);
+                    //TODO obstacle->viewDirection(viewDir);
                     obstacle->width(obstWidth);
                     environment->objects.push_back(obstacle);
                 }
@@ -104,8 +104,8 @@ bool ImageHintTransformer::cycle() {
                 lms::math::vertex2f viewDir = (out2-out1).rotateAntiClockwise90deg().normalize();
 
                 std::shared_ptr<street_environment::StartLine> startLine(new street_environment::StartLine());
-                startLine->updatePosition(out);
-                startLine->viewDirection(viewDir);
+                startLine->addPoint(out);
+                //startLine->viewDirection(viewDir);
                 startLine->setTrust(0.1);
                 environment->objects.push_back(startLine);
             }else if(crossingImage->foundCrossing){
@@ -134,13 +134,13 @@ bool ImageHintTransformer::cycle() {
                 crossing->blocked(crossingImage->blocked);
                 crossing->foundOppositeStopLine = crossingImage->oppositeStopLineFound;
                 //logger.debug("CROSSING IS BLOCKED? ")<<crossing->blocked();
-                crossing->viewDirection(viewDir);
+                //TODO crossing->viewDirection(viewDir);
                 if(crossingImage->oppositeStopLineFound){
                     crossing->setTrust(0.2);
                 }else{
                     crossing->setTrust(0.1);
                 }
-                crossing->updatePosition(out);
+                crossing->addPoint(out);
                 environment->objects.push_back(crossing);
             }else{
                 continue;
